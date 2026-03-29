@@ -1,0 +1,22 @@
+{
+  "name": "subtitle-forge",
+  "version": "1.0.0",
+  "description": "AI-powered subtitle generation with dual-language support (English/Hebrew) for NotebookLM audio and video overviews",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": ["subtitles", "srt", "vtt", "whisper", "transcription", "translation", "hebrew", "notebooklm"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.0",
+    "multer": "^1.4.5-lts.1",
+    "openai": "^4.73.0",
+    "dotenv": "^16.4.5",
+    "fluent-ffmpeg": "^2.1.3",
+    "ffmpeg-static": "^5.2.0"
+  }
+}

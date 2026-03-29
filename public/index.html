@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SubtitleForge — AI-powered subtitle generation for NotebookLM audio and video overviews. English and Hebrew with perfect sync.">
+  <title>SubtitleForge — AI Subtitle Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ===== Ambient Background ===== -->
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- ===== Header ===== -->
+  <header class="app-header" id="app-header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <div class="logo-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+            <path d="M8 22V14L16 10L24 14V22L16 26L8 22Z" stroke="white" stroke-width="1.5" fill="none"/>
+            <path d="M16 10V26" stroke="white" stroke-width="1" opacity="0.5"/>
+            <path d="M8 14L24 22M24 14L8 22" stroke="white" stroke-width="0.75" opacity="0.3"/>
+            <circle cx="16" cy="18" r="2.5" fill="white" opacity="0.9"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                <stop stop-color="#6C5CE7"/>
+                <stop offset="1" stop-color="#00CEC9"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>SubtitleForge</h1>
+          <span class="logo-tagline">AI-Powered Subtitle Generator</span>
+        </div>
+      </div>
+      <div class="header-badge">
+        <span class="badge-dot"></span>
+        NotebookLM Ready
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Main Content ===== -->
+  <main class="main-content" id="main-content">
+
+    <!-- Upload Section -->
+    <section class="section section-upload" id="section-upload">
+      <div class="section-header">
+        <span class="section-number">01</span>
+        <h2>Upload Media</h2>
+        <p class="section-desc">Drop your NotebookLM Audio or Video Overview file</p>
+      </div>
+
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Drop file here or click to browse">
+        <div class="dropzone-inner">
+          <div class="dropzone-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none">
+              <path d="M24 4L24 32" stroke="url(#uploadGrad)" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M16 12L24 4L32 12" stroke="url(#uploadGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 28V38C8 40.2 9.8 42 12 42H36C38.2 42 40 40.2 40 38V28" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+              <defs>
+                <linearGradient id="uploadGrad" x1="24" y1="4" x2="24" y2="32">
+                  <stop stop-color="#A29BFE"/>
+                  <stop offset="1" stop-color="#6C5CE7"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div class="dropzone-text">
+            <strong>Drag & Drop your file here</strong>
+            <span>or click to browse</span>
+          </div>
+          <div class="dropzone-formats">
+            <span class="format-badge">.M4A</span>
+            <span class="format-badge">.MP4</span>
+            <span class="format-badge">.WebM</span>
+          </div>
+        </div>
+        <input type="file" id="file-input" accept=".m4a,.mp4,.webm" hidden>
+      </div>
+
+      <!-- File selected state -->
+      <div class="file-selected" id="file-selected" hidden>
+        <div class="file-info">
+          <div class="file-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M14 2V8H20" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M10 13L8 17H16L13 13L11 15.5L10 13Z" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="file-details">
+            <span class="file-name" id="file-name"></span>
+            <span class="file-size" id="file-size"></span>
+          </div>
+          <button class="btn-remove" id="btn-remove" aria-label="Remove file" title="Remove file">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/></svg>
+          </button>
+        </div>
+        <button class="btn-primary" id="btn-process">
+          <span class="btn-icon">⚡</span>
+          Generate Subtitles
+        </button>
+      </div>
+    </section>
+
+    <!-- Processing Section -->
+    <section class="section section-processing" id="section-processing" hidden>
+      <div class="section-header">
+        <span class="section-number">02</span>
+        <h2>Processing</h2>
+        <p class="section-desc" id="processing-stage">Initializing...</p>
+      </div>
+
+      <div class="progress-container">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+          <div class="progress-bar-glow" id="progress-glow"></div>
+        </div>
+        <div class="progress-info">
+          <span class="progress-percentage" id="progress-percentage">0%</span>
+          <span class="progress-eta" id="progress-eta"></span>
+        </div>
+      </div>
+
+      <div class="pipeline-steps">
+        <div class="pipeline-step" id="step-extract" data-status="pending">
+          <div class="step-indicator"></div>
+          <span>Audio Extraction</span>
+        </div>
+        <div class="pipeline-step" id="step-transcribe" data-status="pending">
+          <div class="step-indicator"></div>
+          <span>Whisper Transcription</span>
+        </div>
+        <div class="pipeline-step" id="step-translate" data-status="pending">
+          <div class="step-indicator"></div>
+          <span>Hebrew Translation</span>
+        </div>
+        <div class="pipeline-step" id="step-format" data-status="pending">
+          <div class="step-indicator"></div>
+          <span>Subtitle Formatting</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="section section-results" id="section-results" hidden>
+      <div class="section-header">
+        <span class="section-number">03</span>
+        <h2>Results</h2>
+        <p class="section-desc">Your subtitles are ready</p>
+      </div>
+
+      <!-- Media Player & Subtitle Preview -->
+      <div class="player-container" id="player-container">
+        <div class="player-wrapper">
+          <!-- Video element (shown for video files) -->
+          <video class="media-player" id="video-player" hidden>
+            Your browser does not support the video element.
+          </video>
+          <!-- Audio element (shown for audio files) -->
+          <div class="audio-player-wrapper" id="audio-player-wrapper" hidden>
+            <div class="audio-visualizer" id="audio-visualizer">
+              <div class="audio-wave" aria-hidden="true">
+                <!-- Wave bars will be generated by JS -->
+              </div>
+              <audio class="media-player" id="audio-player">
+                Your browser does not support the audio element.
+              </audio>
+            </div>
+          </div>
+
+          <!-- Subtitle Overlay -->
+          <div class="subtitle-overlay" id="subtitle-overlay">
+            <div class="subtitle-text" id="subtitle-text"></div>
+          </div>
+        </div>
+
+        <!-- Player Controls -->
+        <div class="player-controls">
+          <button class="ctrl-btn" id="btn-play" aria-label="Play/Pause">
+            <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" hidden><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
+          </button>
+          <div class="time-display">
+            <span id="time-current">0:00</span>
+            <span class="time-sep">/</span>
+            <span id="time-duration">0:00</span>
+          </div>
+          <div class="seekbar-container" id="seekbar-container">
+            <div class="seekbar-track">
+              <div class="seekbar-fill" id="seekbar-fill"></div>
+              <div class="seekbar-thumb" id="seekbar-thumb"></div>
+            </div>
+          </div>
+          <div class="lang-toggle" id="lang-toggle">
+            <button class="lang-btn active" data-lang="en" id="btn-lang-en">EN</button>
+            <button class="lang-btn" data-lang="he" id="btn-lang-he">עב</button>
+            <button class="lang-btn" data-lang="dual" id="btn-lang-dual">EN/עב</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtitle Display Panel -->
+      <div class="subtitle-panel">
+        <div class="panel-tabs">
+          <button class="panel-tab active" data-panel="en" id="tab-en">English</button>
+          <button class="panel-tab" data-panel="he" id="tab-he">עברית</button>
+        </div>
+        <div class="subtitle-list" id="subtitle-list">
+          <!-- Subtitle entries rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Download Section -->
+      <div class="download-grid">
+        <h3 class="download-title">Download Subtitles</h3>
+        <div class="download-cards">
+          <div class="download-card">
+            <div class="dl-lang">English</div>
+            <div class="dl-buttons">
+              <button class="btn-download" id="dl-en-srt" data-lang="en" data-format="srt">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a.75.75 0 01.75.75v6.44l1.72-1.72a.75.75 0 111.06 1.06l-3 3a.75.75 0 01-1.06 0l-3-3a.75.75 0 011.06-1.06l1.72 1.72V3.75A.75.75 0 0110 3z"/><path d="M3 15.75a.75.75 0 01.75-.75h12.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z"/></svg>
+                .SRT
+              </button>
+              <button class="btn-download" id="dl-en-vtt" data-lang="en" data-format="vtt">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a.75.75 0 01.75.75v6.44l1.72-1.72a.75.75 0 111.06 1.06l-3 3a.75.75 0 01-1.06 0l-3-3a.75.75 0 011.06-1.06l1.72 1.72V3.75A.75.75 0 0110 3z"/><path d="M3 15.75a.75.75 0 01.75-.75h12.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z"/></svg>
+                .VTT
+              </button>
+            </div>
+          </div>
+          <div class="download-card">
+            <div class="dl-lang" dir="rtl">עברית</div>
+            <div class="dl-buttons">
+              <button class="btn-download" id="dl-he-srt" data-lang="he" data-format="srt">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a.75.75 0 01.75.75v6.44l1.72-1.72a.75.75 0 111.06 1.06l-3 3a.75.75 0 01-1.06 0l-3-3a.75.75 0 011.06-1.06l1.72 1.72V3.75A.75.75 0 0110 3z"/><path d="M3 15.75a.75.75 0 01.75-.75h12.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z"/></svg>
+                .SRT
+              </button>
+              <button class="btn-download" id="dl-he-vtt" data-lang="he" data-format="vtt">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a.75.75 0 01.75.75v6.44l1.72-1.72a.75.75 0 111.06 1.06l-3 3a.75.75 0 01-1.06 0l-3-3a.75.75 0 011.06-1.06l1.72 1.72V3.75A.75.75 0 0110 3z"/><path d="M3 15.75a.75.75 0 01.75-.75h12.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z"/></svg>
+                .VTT
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Error display -->
+    <div class="error-toast" id="error-toast" hidden>
+      <div class="error-icon">⚠</div>
+      <span class="error-message" id="error-message"></span>
+      <button class="error-close" id="error-close" aria-label="Dismiss error">&times;</button>
+    </div>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="app-footer">
+    <p>SubtitleForge &mdash; Built with Whisper AI &amp; GPT-4o</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
