@@ -111,8 +111,8 @@ Choose your operating system below for specific setup instructions:
 
 **2. Setup Project**
 ```cmd
-git clone https://github.com/YOUR_USERNAME/subtitle-forge.git
-cd subtitle-forge
+git clone https://github.com/LiranOG/SubtitleForge-AI.git
+cd SubtitleForge-AI
 npm install
 copy .env.example .env
 ```
@@ -142,8 +142,8 @@ sudo apt install ffmpeg
 
 **2. Setup Project**
 ```bash
-git clone https://github.com/YOUR_USERNAME/subtitle-forge.git
-cd subtitle-forge
+git clone https://github.com/LiranOG/SubtitleForge-AI.git
+cd SubtitleForge-AI
 npm install
 cp .env.example .env
 ```
@@ -168,8 +168,8 @@ brew install ffmpeg
 
 **2. Setup Project**
 ```bash
-git clone https://github.com/YOUR_USERNAME/subtitle-forge.git
-cd subtitle-forge
+git clone https://github.com/LiranOG/SubtitleForge-AI.git
+cd SubtitleForge-AI
 npm install
 cp .env.example .env
 ```
@@ -197,8 +197,8 @@ sudo apt install ffmpeg
 
 **2. Setup Project**
 ```bash
-git clone https://github.com/YOUR_USERNAME/subtitle-forge.git
-cd subtitle-forge
+git clone https://github.com/LiranOG/SubtitleForge-AI.git
+cd SubtitleForge-AI
 npm install
 cp .env.example .env
 ```
