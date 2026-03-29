@@ -90,27 +90,129 @@ SubtitleForge is a full-stack web application designed specifically for [Google 
 |-------------|---------|---------|
 | [Node.js](https://nodejs.org/) | 18+ (recommended 20+) | Runtime environment |
 | [OpenAI API Key](https://platform.openai.com/api-keys) | — | Whisper transcription + GPT-4o translation |
+| [FFmpeg](https://ffmpeg.org/) | Any recent | Audio extraction from video files |
 
-> **Note:** FFmpeg is **not** required as a system dependency. SubtitleForge bundles it automatically via [`ffmpeg-static`](https://www.npmjs.com/package/ffmpeg-static).
+> **Note:** FFmpeg is only required if you plan to upload **video** files (.mp4, .webm). Audio-only files (.m4a) work out of the box without it.
 
-### Installation
+### Installation & Setup
 
-```bash
-# Clone the repository
+Choose your operating system below for specific setup instructions:
+
+<details open>
+<summary><b>🪟 Windows</b></summary>
+<br>
+
+**1. Install Prerequisites**
+- Download and install [Node.js](https://nodejs.org/) (make sure to check the box that adds it to PATH).
+- Open PowerShell or Command Prompt and install FFmpeg:
+  ```cmd
+  winget install ffmpeg
+  ```
+
+**2. Setup Project**
+```cmd
 git clone https://github.com/YOUR_USERNAME/subtitle-forge.git
 cd subtitle-forge
-
-# Install dependencies
 npm install
-
-# Create your environment configuration
-cp .env.example .env    # macOS/Linux
-copy .env.example .env  # Windows
+copy .env.example .env
 ```
 
-### Configuration
+**3. Configuration**
+Open `.env` in Notepad and paste your OpenAI API Key:
+```cmd
+notepad .env
+```
+</details>
 
-Edit the `.env` file and add your OpenAI API key:
+<details>
+<summary><b>🐧 WSL (Windows Subsystem for Linux)</b></summary>
+<br>
+
+**⚠️ Crucial Warning:** Do *not* use Windows Node.js inside WSL. You must install a native Linux Node.js version.
+
+**1. Install Native Prerequisites**
+```bash
+# Install Node.js natively in WSL
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Install FFmpeg
+sudo apt install ffmpeg
+```
+
+**2. Setup Project**
+```bash
+git clone https://github.com/YOUR_USERNAME/subtitle-forge.git
+cd subtitle-forge
+npm install
+cp .env.example .env
+```
+
+**3. Configuration**
+Open `.env` in nano and paste your OpenAI API Key:
+```bash
+nano .env
+```
+</details>
+
+<details>
+<summary><b>🍏 macOS</b></summary>
+<br>
+
+**1. Install Prerequisites**
+Assuming you have [Homebrew](https://brew.sh/) installed:
+```bash
+brew install node
+brew install ffmpeg
+```
+
+**2. Setup Project**
+```bash
+git clone https://github.com/YOUR_USERNAME/subtitle-forge.git
+cd subtitle-forge
+npm install
+cp .env.example .env
+```
+
+**3. Configuration**
+Open `.env` in nano and paste your OpenAI API Key:
+```bash
+nano .env
+```
+</details>
+
+<details>
+<summary><b>🐧 Linux (Ubuntu/Debian)</b></summary>
+<br>
+
+**1. Install Prerequisites**
+```bash
+# Install Node.js (via NodeSource)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Install FFmpeg
+sudo apt install ffmpeg
+```
+
+**2. Setup Project**
+```bash
+git clone https://github.com/YOUR_USERNAME/subtitle-forge.git
+cd subtitle-forge
+npm install
+cp .env.example .env
+```
+
+**3. Configuration**
+Open `.env` in nano and paste your OpenAI API Key:
+```bash
+nano .env
+```
+</details>
+
+### Configuration Variables
+
+Inside your `.env` file, the following variables are available:
 
 ```env
 # Required — Get yours at https://platform.openai.com/api-keys
@@ -120,6 +222,16 @@ OPENAI_API_KEY=sk-proj-your-key-here
 PORT=3000              # Server port (default: 3000)
 MAX_FILE_SIZE_MB=500   # Upload size limit in MB (default: 500)
 ```
+
+### Verify Environment
+
+Once configured, verify your setup:
+
+```bash
+npm run check
+```
+
+This ensures Node.js, FFmpeg, and your API keys are correctly configured for your specific OS.
 
 ### Launch
 
@@ -170,8 +282,12 @@ subtitle-forge/
 │   │   ├── generateSRT()        #   SubRip format (HH:MM:SS,mmm)
 │   │   └── generateVTT()        #   WebVTT format (HH:MM:SS.mmm)
 │   │
-│   └── media.js                 # FFmpeg audio extraction
-│       └── extractAudio()       #   Video → mono 16kHz AAC (Whisper-optimal)
+│   ├── media.js                 # FFmpeg audio extraction (child_process)
+│   │   ├── extractAudio()       #   Video → mono 16kHz AAC (Whisper-optimal)
+│   │   └── checkFfmpeg()        #   Verify FFmpeg availability
+│   │
+│   └── check-env.js             # Pre-flight environment validation
+│       └── runChecks()          #   Node, FFmpeg, API key, WSL detection
 │
 ├── public/
 │   ├── index.html               # Semantic HTML with ARIA accessibility
@@ -184,6 +300,7 @@ subtitle-forge/
 ├── LICENSE                      # MIT License
 ├── CONTRIBUTING.md              # Contribution guidelines
 ├── CHANGELOG.md                 # Version history
+├── SECURITY.md                  # Security policy
 └── README.md                    # This file
 ```
 
@@ -296,13 +413,12 @@ Health check endpoint.
 
 | Layer | Technology | Version | Purpose |
 |-------|-----------|---------|---------|
-| **Runtime** | Node.js | 20+ | JavaScript server environment |
+| **Runtime** | Node.js | 18+ | JavaScript server environment |
 | **Framework** | Express | 4.21+ | HTTP routing, middleware, static serving |
-| **Upload** | Multer | 1.4+ | Multipart file upload with validation |
+| **Upload** | Multer | 2.x | Multipart file upload with validation |
 | **AI — Speech** | OpenAI Whisper | whisper-1 | Speech-to-text with word-level timestamps |
 | **AI — Translation** | OpenAI GPT-4o | gpt-4o | Context-aware English → Hebrew translation |
-| **Media** | fluent-ffmpeg | 2.1+ | Node.js FFmpeg wrapper |
-| **FFmpeg Binary** | ffmpeg-static | 5.2+ | Bundled FFmpeg (no system install needed) |
+| **Media** | FFmpeg (system) | Any | Audio extraction via child_process.spawn |
 | **Config** | dotenv | 16.4+ | Environment variable management |
 | **Frontend** | Vanilla HTML/CSS/JS | — | Zero-dependency client |
 | **Typography** | Inter + JetBrains Mono | — | Google Fonts |

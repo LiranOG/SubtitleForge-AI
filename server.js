@@ -13,6 +13,7 @@ import { transcribeAudio } from './lib/transcriber.js';
 import { translateSubtitles } from './lib/translator.js';
 import { generateSRT, generateVTT } from './lib/formatter.js';
 import { extractAudio } from './lib/media.js';
+import { runChecks } from './lib/check-env.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -75,6 +76,15 @@ app.post('/api/upload', upload.single('media'), async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    // Validate API key before starting job
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.startsWith('sk-your')) {
+      // Cleanup uploaded file
+      fs.unlinkSync(req.file.path);
+      return res.status(500).json({
+        error: 'OpenAI API key not configured. Please add your key to the .env file.'
+      });
+    }
+
     const jobId = `job-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const filePath = req.file.path;
     const ext = path.extname(req.file.originalname).toLowerCase();
@@ -125,7 +135,9 @@ app.get('/api/job/:jobId', (req, res) => {
 
 // Serve uploaded media for the player
 app.get('/api/media/:filename', (req, res) => {
-  const filePath = path.join(uploadsDir, req.params.filename);
+  // Sanitize filename to prevent path traversal
+  const filename = path.basename(req.params.filename);
+  const filePath = path.join(uploadsDir, filename);
   if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
   res.sendFile(filePath);
 });
@@ -136,6 +148,11 @@ app.get('/api/download/:jobId/:lang/:format', (req, res) => {
   if (!job || !job.result) return res.status(404).json({ error: 'Subtitles not ready' });
 
   const { lang, format } = req.params;
+
+  // Validate params
+  if (!['en', 'he'].includes(lang)) return res.status(400).json({ error: 'Invalid language. Use: en, he' });
+  if (!['srt', 'vtt'].includes(format)) return res.status(400).json({ error: 'Invalid format. Use: srt, vtt' });
+
   const segments = lang === 'he' ? job.result.hebrew : job.result.english;
 
   if (!segments) return res.status(400).json({ error: `Language '${lang}' not available` });
@@ -214,16 +231,47 @@ app.use((err, req, res, next) => {
     }
     return res.status(400).json({ error: err.message });
   }
+  if (err.message && err.message.includes('Unsupported file type')) {
+    return res.status(400).json({ error: err.message });
+  }
   console.error('Unhandled error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
 
 // ---------------------------------------------------------------------------
-// Start Server
+// Startup
 // ---------------------------------------------------------------------------
-app.listen(PORT, () => {
-  console.log(`\n  ⚡ SubtitleForge running at http://localhost:${PORT}\n`);
-  if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.startsWith('sk-your')) {
-    console.warn('  ⚠  WARNING: OPENAI_API_KEY not set. Copy .env.example to .env and add your key.\n');
+async function start() {
+  // Run environment checks
+  console.log('\n  🔍 Environment Check:');
+  const { ok, messages } = await runChecks();
+  messages.forEach(m => console.log(`     ${m}`));
+  console.log('');
+
+  if (!ok) {
+    console.error('  ❌ Critical issues detected. Fix them before running.\n');
+    process.exit(1);
   }
-});
+
+  // Start server
+  const server = app.listen(PORT, () => {
+    console.log(`  ⚡ SubtitleForge running at http://localhost:${PORT}\n`);
+  });
+
+  // Graceful shutdown
+  const shutdown = (signal) => {
+    console.log(`\n  Received ${signal}. Shutting down gracefully...`);
+    server.close(() => {
+      // Cleanup any uploaded files from incomplete jobs
+      console.log('  Server closed.');
+      process.exit(0);
+    });
+    // Force exit after 10s
+    setTimeout(() => process.exit(1), 10000);
+  };
+
+  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+}
+
+start();
